@@ -1,3 +1,5 @@
+#该代码用于生成结果向量，最后计算loss
+
 from __future__ import division
 
 import numpy as np
@@ -11,6 +13,11 @@ from util.cnn import pooling_layer as pool
 from util.cnn import fc_layer as fc
 from util.cnn import fc_relu_layer as fc_relu
 
+"""
+name : 'CBR'
+input_batch : visual_featuremap_ph_train  (4096*3)
+
+"""
 def vs_multilayer(input_batch, name, middle_layer_dim=1000, output_layer_dim=21*3, dropout=True, reuse=False):
     with tf.variable_scope(name):
         if reuse==True:
@@ -20,8 +27,8 @@ def vs_multilayer(input_batch, name, middle_layer_dim=1000, output_layer_dim=21*
             print name+" doesn't reuse variables"
 
         
-        layer1 = fc_relu('layer1', input_batch, output_dim=middle_layer_dim)
+        layer1 = fc_relu('layer1', input_batch, output_dim=middle_layer_dim)  # (4096*3)--->1000
         if dropout:
             layer1 = drop(layer1, 0.5)
-        sim_score = fc('layer2', layer1, output_dim=output_layer_dim)
+        sim_score = fc('layer2', layer1, output_dim=output_layer_dim) # 1000---->21*3
     return sim_score
