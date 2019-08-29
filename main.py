@@ -9,15 +9,15 @@ import os
 import cbr_model
 import dataset
 
-ctx_num = 2
-unit_size = 16.0
-unit_feature_size = 4096
+ctx_num = 2   # 上下文信息融合
+unit_size = 16.0  # 一个unit包含16帧
+unit_feature_size = 4096 # 特征维度为4096
 lr = 0.001
 lambda_reg = 1.0
 batch_size = 128
 test_steps = 500
 action_class_num = 20
-cas_step = 3
+cas_step = 3  # 级联数量
 
 cat_index_dict={
 0:("Background",0),
@@ -172,21 +172,31 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
 
 def run_training():
     max_steps = 4000
+    # 训练时的clip路径
+    # 格式如下：
+    #     video_validation_0000318 2257 2321 2242 2368 HammerThrow
     train_clip_path = "./val_training_samples.txt"
+    # 背景clip
     background_path = "./background_samples.txt"
     train_flow_featmap_dir = "../val_fc6_16_overlap0.5_denseflow/"
     train_appr_featmap_dir = "../val_fc6_16_overlap0.5_resnet/"
     test_flow_featmap_dir = "../test_fc6_16_overlap0.5_denseflow/" 
-    test_appr_featmap_dir = "../test_fc6_16_overlap0.5_resnet/"  
+    test_appr_featmap_dir = "../test_fc6_16_overlap0.5_resnet/" 
+
+    # TURN-TAP生成的clip提议用于测试CBR的效果
     test_clip_path = "./test_proposals_from_TURN.txt"
 
+    # 构建CBR模型
     model = cbr_model.CBR_Model(batch_size, ctx_num, unit_size, unit_feature_size, action_class_num, lr, lambda_reg, train_clip_path, background_path, test_clip_path, train_flow_featmap_dir, train_appr_featmap_dir, test_flow_featmap_dir, test_appr_featmap_dir)
 
+    # tf.Graph() 表示实例化了一个类，一个用于 tensorflow 计算和表示用的数据流图
+    # tf.Graph().as_default() 表示将这个类实例，也就是新生成的图作为整个 tensorflow 运行环境的默认图
     with tf.Graph().as_default():
-		
-        loss, vs_train_op, vs_eval_op, loss_reg = model.construct_model()
+        loss, vs_train_op, vs_eval_op, loss_reg = model.construct_model()  # vs_train_op表示执行训练操作，vs_eval_op表示执行测试操作
         # Create a session for running Ops on the Graph.
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3) # 30% memory of TITAN is enough
+	
+	
         sess = tf.Session(config = tf.ConfigProto(gpu_options=gpu_options))
         # Run the Op to initialize the variables.
         init = tf.initialize_all_variables()
