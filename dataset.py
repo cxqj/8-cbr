@@ -6,6 +6,7 @@ import random
 import pickle
 
 
+# 已经修改了类别标签从1-20
 cat_index_dict={
 "Background":0,
 "BaseballPitch":1,
