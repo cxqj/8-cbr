@@ -42,7 +42,7 @@ class TrainingDataSet(object):
         self.unit_feature_size = unit_feature_size # 4096
         self.flow_feat_dir = flow_feat_dir
         self.appr_feat_dir = appr_feat_dir
-        self.training_samples = []   # 将读取的标注文件的结果存入次列表，列表中每个元素对应标注文件的一行
+        self.training_samples = []   # 将读取的标注文件的结果存入次列表，列表中每个元素对应标注文件的一行 [(),(),()....]
         self.unit_size = unit_size  #16
         self.action_class_num = action_class_num
         # 读取正样本提议存入training_sample列表中
@@ -62,7 +62,7 @@ class TrainingDataSet(object):
                 one_hot_label[cat_index] = 1.0
                 self.training_samples.append((movie_name, clip_start, clip_end, gt_start, gt_end, round_gt_start, round_gt_end, cat_index, one_hot_label))
             
-        print str(len(self.training_samples))+" training samples are read"
+        print str(len(self.training_samples))+" training samples are read"  # 15636
         
         positive_num = len(self.training_samples)*1.0
         
@@ -77,7 +77,7 @@ class TrainingDataSet(object):
                 one_hot_label = np.zeros([self.action_class_num+1], dtype=np.float32)
                 self.training_samples.append((movie_name, clip_start, clip_end, 0, 0, 0, 0, 0, one_hot_label))
         self.num_samples = len(self.training_samples)
-        print str(len(self.training_samples))+" training samples are read"
+        print str(len(self.training_samples))+" training samples are read"  # 16439 只采样了1000多个背景样本
 
     # 计算回归的坐标偏移
     def calculate_regoffset(self, clip_start, clip_end, round_gt_start, round_gt_end):
@@ -211,7 +211,7 @@ class TestingDataSet(object):
                 round_end = np.round(clip_end/self.unit_size)*self.unit_size+1
                 self.test_samples.append((movie_name, round_start, round_end))
         self.num_samples = len(self.test_samples)
-        print "test clips number: "+str(len(self.test_samples))
+        print "test clips number: "+str(len(self.test_samples))  # 61823，猜测这里的proposal是TURN-TAP生成的
         
 
 
