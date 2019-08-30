@@ -31,7 +31,8 @@ class CBR_Model(object):
         }
         return input_feed
 
-    # 计算总的loss和回归loss      
+    # 计算总的loss和回归loss  
+    # vs_multilayer由两个全连接层构成，将该clip对应的特征输入，生成用于分类和回归的特征
     def compute_loss_reg(self, visual_feature, offsets, labels, one_hot_labels):
 
         cls_reg_vec = vs_multilayer.vs_multilayer(visual_feature, "CBR", middle_layer_dim=self.middle_layer_size, output_layer_dim=(self.action_class_num+1)*3)
@@ -65,11 +66,11 @@ class CBR_Model(object):
 
     # 创建placeholder
     def init_placeholder(self):
-        visual_featmap_ph_train = tf.placeholder(tf.float32, shape=(self.batch_size, self.visual_feature_dim))
-        label_ph = tf.placeholder(tf.int32, shape=(self.batch_size))
-        offset_ph = tf.placeholder(tf.float32, shape=(self.batch_size, 2))
-        one_hot_label_ph = tf.placeholder(tf.float32, shape=(self.batch_size, self.action_class_num+1))
-        visual_featmap_ph_test = tf.placeholder(tf.float32, shape=(self.test_batch_size, self.visual_feature_dim))
+        visual_featmap_ph_train = tf.placeholder(tf.float32, shape=(self.batch_size, self.visual_feature_dim)) # (128,12288)
+        label_ph = tf.placeholder(tf.int32, shape=(self.batch_size)) # (128,)
+        offset_ph = tf.placeholder(tf.float32, shape=(self.batch_size, 2)) # (128,2)
+        one_hot_label_ph = tf.placeholder(tf.float32, shape=(self.batch_size, self.action_class_num+1)) # (128,21)
+        visual_featmap_ph_test = tf.placeholder(tf.float32, shape=(self.test_batch_size, self.visual_feature_dim)) # (1,12288)
 
         return visual_featmap_ph_train, visual_featmap_ph_test, label_ph, offset_ph, one_hot_label_ph
     
