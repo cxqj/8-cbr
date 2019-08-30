@@ -207,7 +207,7 @@ def run_training():
         sess.run(init)
         for step in xrange(max_steps):
             start_time = time.time()
-            feed_dict = model.fill_feed_dict_train()  
+            feed_dict = model.fill_feed_dict_train()   # 加载训练数据
 
             _, loss_value, loss_reg_value = sess.run([vs_train_op, loss, loss_reg], feed_dict=feed_dict)
             duration = time.time()-start_time  # 迭代一次花费的时间
