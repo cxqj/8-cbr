@@ -1,4 +1,10 @@
 import numpy as np
+"""
+Android基本UI控件中的ProgressBar(进度条)，ProgressBar的应用场景很多，比如 用户登录时，
+后台在发请求，以及等待服务器返回信息，这个时候会用到进度条；或者当在进行一些比较 耗时的操作，
+需要等待一段较长的时间，这个时候如果没有提示，用户可能会以为程序Carsh或者手机死机 了，这样
+会大大降低用户体验，所以在需要进行耗时操作的地方，添加上进度条，让用户知道当前的程序 在执行中
+"""
 import progressbar
 import sys
 import operator
@@ -65,11 +71,11 @@ cat_index_dict={
 20:("VolleyballSpiking",97)
 }
 
-pkl_file = sys.argv[1]
-IoU=float(sys.argv[2])
+pkl_file = sys.argv[1]  # min.py文件运行生成的测试结果
+IoU=float(sys.argv[2])  # IOU阈值
 movie_fps=pickle.load(open("./movie_fps.pkl"))
 nms_delta=0.2
-feq_refine_early=True
+feq_refine_early=True  # 不知道干嘛的
 act_refine_freq = np.load('val_training_samples_16-512_window_freq.npy')
 test_movie_interval_label_samples={}
 output_result_file=open("./after_postprocessing/"+pkl_file.split(".pkl")[0]+"_IoU_"+str(IoU)+".txt","w")
@@ -79,7 +85,7 @@ results_dict=pickle.load(open("./test_results/"+pkl_file))
 bar = progressbar.ProgressBar(maxval=len(results_dict)).start()
 for m_id, movie in enumerate(results_dict):
     bar.update(m_id+1)  
-    feats = results_dict[movie][2]
+    feats = results_dict[movie][2]  # action_prob
     starts=results_dict[movie][0]
     ends= results_dict[movie][1]
 
