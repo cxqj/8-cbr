@@ -117,5 +117,6 @@ class CBR_Model(object):
         self.vs_train_op = self.training(self.loss)
         vs_eval_op = self.eval(visual_featmap_ph_test_norm)
         return self.loss, self.vs_train_op, vs_eval_op, loss_reg  #返回总的loss，训练操作，测试操作，
+    
 
 
