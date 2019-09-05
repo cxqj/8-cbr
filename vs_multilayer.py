@@ -1,5 +1,7 @@
 #该代码用于生成结果向量，最后计算loss
 
+# cbr相比于turn单纯做提议生成，其fc的输出是多类的
+
 from __future__ import division
 
 import numpy as np
