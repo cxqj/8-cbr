@@ -116,11 +116,12 @@ def softmax(x):
     return np.exp(x)/np.sum(np.exp(x), axis=0)
 
 # 在训练过程中每隔500次进行一次测试，该部分代码就是测试代码
+# CBR相比于前期的turn-tap只是在测试的时候多了多级的回归操作
 def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
     
     result_dict = {}
     reg_result_dict = {}
-    prob_weights = np.array([0.8,0.1,0.1])   # 这个权重是干嘛的
+    prob_weights = np.array([0.8,0.1,0.1])  # 三级回归对应的得分权重，最终的得分是生成的score*weights 
     for k,test_sample in enumerate(test_set.test_samples):
         if k%1000==0:
             print str(k)+"/"+str(len(test_set.test_samples))
@@ -134,12 +135,15 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
             reg_result_dict[movie_name].append([]) #start
             reg_result_dict[movie_name].append([]) #end
             reg_result_dict[movie_name].append([]) #feats
+		
+        # 这里的测试样例是turn-tap生成的提议，在这里进行多级回归而已
         init_clip_start = test_sample[1]
         init_clip_end = test_sample[2]
         clip_start = init_clip_start
         clip_end = init_clip_end
         final_action_prob = np.zeros([action_class_num])
         for i in range(cas_step):  # cas_step :3
+	    # 获取对应clip的三种特征(center,left,right)
             featmap = get_pooling_feature(test_set.flow_feat_dir, test_set.appr_feat_dir, movie_name,clip_start, clip_end)
             left_feat = get_left_context_feature(test_set.flow_feat_dir, test_set.appr_feat_dir, movie_name, clip_start, clip_end)
             right_feat = get_right_context_feature(test_set.flow_feat_dir, test_set.appr_feat_dir, movie_name, clip_start, clip_end)
@@ -149,20 +153,20 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
             feed_dict = {
                 model.visual_featmap_ph_test: feat
                 }
-        
+            # 输出维度(21*3)
             outputs = sess.run(vs_eval_op, feed_dict=feed_dict)
             action_score = outputs[1:action_class_num+1]
             action_prob = softmax(action_score)
             # In BMVC paper, we used prob multiplication to calculate final prob, but later experiments showed that weighted average gives more stable results.
             final_action_prob = final_action_prob+prob_weights[i]*action_prob
-            action_cat = np.argmax(action_prob)+1  # 1为背景类
+            action_cat = np.argmax(action_prob)+1  # 获取该提议对应的动作类别
 	    
 	    # 四舍五入的结果和不四舍五入的结果有什么区别
-            round_reg_end = clip_end+round(outputs[(action_class_num+1)*2+action_cat])*unit_size  # outputs[(action_class_num+1)*2 +action_cat]获取当前所属类别对应的回归值，*unit_size是因为原先处理的时候除了unit_size
-            round_reg_start = clip_start+round(outputs[action_class_num+1+action_cat])*unit_size
+            round_reg_end = clip_end+round(outputs[(action_class_num+1)*2+action_cat])*unit_size  # 根据预测的类别索引获取该类别对应的结束回归值
+            round_reg_start = clip_start+round(outputs[action_class_num+1+action_cat])*unit_size  # 根据预测的类别索引获取该类别对应的起始回归值
             reg_end = clip_end+outputs[(action_class_num+1)*2+action_cat]*unit_size
             reg_start = clip_start+outputs[action_class_num+1+action_cat]*unit_size
-            clip_start = round_reg_start
+            clip_start = round_reg_start   # 更新回归值再接着调整
             clip_end = round_reg_end
         result_dict[movie_name][0].append(clip_start)
         result_dict[movie_name][1].append(clip_end)
