@@ -34,3 +34,4 @@ def vs_multilayer(input_batch, name, middle_layer_dim=1000, output_layer_dim=21*
             layer1 = drop(layer1, 0.5)
         sim_score = fc('layer2', layer1, output_dim=output_layer_dim) # 1000---->21*3
     return sim_score
+
