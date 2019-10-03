@@ -15,8 +15,8 @@ class CBR_Model(object):
         self.middle_layer_size = 1000
         self.vs_lr = lr
         self.lambda_reg = lambda_reg  # 1.0
-        self.action_class_num = action_class_num
-        self.visual_feature_dim = unit_feature_size*3
+        self.action_class_num = action_class_num  # 20
+        self.visual_feature_dim = unit_feature_size*3  # 4096*3
         self.train_set = TrainingDataSet(train_flow_feature_dir, train_appr_feature_dir, train_clip_path, background_path, batch_size, ctx_num, unit_size, unit_feature_size, action_class_num)
         self.test_set = TestingDataSet(test_flow_feature_dir, test_appr_feature_dir, test_clip_path, self.test_batch_size, unit_size)
    
@@ -49,12 +49,13 @@ class CBR_Model(object):
         # regression loss
         pick_start_offset_pred = []
         pick_end_offset_pred = []
-        for k in range(self.batch_size):
+        # 选取第K个sampel的属于某个类别的回归值。参考论文中的回归计算
+        for k in range(self.batch_size):   # 选取第K个sample的回归预测值
             pick_start_offset_pred.append(start_offset_pred[k, labels[k]])
             pick_end_offset_pred.append(end_offset_pred[k, labels[k]])
         pick_start_offset_pred = tf.reshape(tf.stack(pick_start_offset_pred),[self.batch_size, 1])
         pick_end_offset_pred = tf.reshape(tf.stack(pick_end_offset_pred), [self.batch_size, 1])
-        labels_1 = tf.to_float(tf.not_equal(labels,0))
+        labels_1 = tf.to_float(tf.not_equal(labels,0))   # 选取对应的类别的回归值,labels中保存的是该sample属于哪个类别
         label_tmp = tf.to_float(tf.reshape(labels_1, [self.batch_size, 1]))
         label_for_reg = tf.concat(1, [label_tmp, label_tmp])  # 按列进行拼接 [128,2]
         offset_pred = tf.concat(1,(pick_start_offset_pred, pick_end_offset_pred)) # [128,2]
