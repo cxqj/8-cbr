@@ -11,7 +11,7 @@ import dataset
 
 ctx_num = 2   # 上下文信息融合，2表示在获取上下文信息每个获取两个unit的特征
 unit_size = 16.0  # 一个unit包含16帧
-unit_feature_size = 4096 # 特征维度为4096
+unit_feature_size = 4096 # 特征维度为4096（rgb+flow）
 lr = 0.001
 lambda_reg = 1.0
 batch_size = 128
@@ -194,7 +194,7 @@ def run_training():
     # TURN-TAP生成的clip提议用于测试CBR的效果
     test_clip_path = "./test_proposals_from_TURN.txt"
 
-    # 构建CBR模型
+    # 构建CBR模型，主要完成训练，测试样本的构建
     model = cbr_model.CBR_Model(batch_size, ctx_num, unit_size, unit_feature_size, action_class_num, lr, lambda_reg, train_clip_path, background_path, test_clip_path, train_flow_featmap_dir, train_appr_featmap_dir, test_flow_featmap_dir, test_appr_featmap_dir)
 
     # tf.Graph() 表示实例化了一个类，一个用于 tensorflow 计算和表示用的数据流图
