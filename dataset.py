@@ -66,7 +66,7 @@ class TrainingDataSet(object):
         
         positive_num = len(self.training_samples)*1.0
         
-        # 读取负样本提议存入training_sample列表中
+        # 读取背景样本提议存入training_sample列表中
         with open(background_path) as f:
             for l in f:
                 # control the number of background samples
@@ -191,7 +191,7 @@ class TrainingDataSet(object):
                 offset_batch[index,0] = 0
                 offset_batch[index,1] = 0
                 index+=1  
-        return image_batch, label_batch, offset_batch, one_hot_label_batch  # 返回一个batch(128个clip)对应的信息
+        return image_batch, label_batch, offset_batch, one_hot_label_batch  # offset_batch中真实的偏移量，所有的数据都是针对samples而言
 
 
 class TestingDataSet(object):
