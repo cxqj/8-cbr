@@ -142,6 +142,7 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
         clip_start = init_clip_start
         clip_end = init_clip_end
         final_action_prob = np.zeros([action_class_num])
+	 # 级联边界回归比较特殊，每次回归后可以根据回归后的结果选取新的特征从而不断回归优化，但是传统的回归特征是固定的
         for i in range(cas_step):  # cas_step :3
 	    # 获取对应clip的三种特征(center,left,right)
             featmap = get_pooling_feature(test_set.flow_feat_dir, test_set.appr_feat_dir, movie_name,clip_start, clip_end)
@@ -161,7 +162,6 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
             final_action_prob = final_action_prob+prob_weights[i]*action_prob
             action_cat = np.argmax(action_prob)+1  # 获取该提议对应的动作类别
 	    
-	    # 四舍五入的结果和不四舍五入的结果有什么区别
             round_reg_end = clip_end+round(outputs[(action_class_num+1)*2+action_cat])*unit_size  # 根据预测的类别索引获取该类别对应的结束回归值
             round_reg_start = clip_start+round(outputs[action_class_num+1+action_cat])*unit_size  # 根据预测的类别索引获取该类别对应的起始回归值
             reg_end = clip_end+outputs[(action_class_num+1)*2+action_cat]*unit_size
