@@ -141,7 +141,7 @@ def do_eval_slidingclips(sess, vs_eval_op, model, test_set, iter_step):
         init_clip_end = test_sample[2]
         clip_start = init_clip_start
         clip_end = init_clip_end
-        final_action_prob = np.zeros([action_class_num])
+        final_action_prob = np.zeros([action_class_num]) # 20
 	 # 级联边界回归比较特殊，每次回归后可以根据回归后的结果选取新的特征从而不断回归优化，但是传统的回归特征是固定的
         for i in range(cas_step):  # cas_step :3
 	    # 获取对应clip的三种特征(center,left,right)
